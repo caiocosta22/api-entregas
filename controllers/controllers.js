@@ -2,14 +2,20 @@
 
 const models = require('../models/models.js');
 
-function sincronizar(req, res){
-    (req, function(err,result){
-        if (err){
-            res.status(500).send(err);
-        } else {
-            res.status(201).send("Tudo ok");
-        }
-    });
+function sincronizar(request, response){
+    models.teste1(request, response).then(result => {
+        return response.status(200).json({message: "Requisição Concluída"});
+    }).catch(error => {
+        return response.status(404).json({error});
+    })
 };
 
-module.exports = {sincronizar}
+function sincronizar2(request, response){
+    models.teste2(request, response).then(result => {
+        return response.status(200).json({message: "Requisição Concluída"});
+    }).catch(error => {
+        return response.status(404).json({error});
+    })
+};
+
+module.exports = {sincronizar,sincronizar2}

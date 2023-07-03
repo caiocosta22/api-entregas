@@ -4,7 +4,7 @@ const http = require('http');
 const debug = require('debug')('gpvendas:server');
 const app = require('../index.js');
 const axios = require('axios');
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '8082');
 /*
 MAIN_URL = "http://cloud47.p80.com.br:8080/WSEntregas/webresources/";
 GET_CARGAS_URL = "carga/consultaCargas/";
@@ -75,17 +75,24 @@ function onListening() {
         debug('Listening on' + bind);
 };
 
-/*
+//Registrando as horas, para o LOG da aplicação
+const dataAtual = new Date();
+const ano = dataAtual.getFullYear();
+const dia = dataAtual.getDate();
+const mes = (dataAtual.getMonth() + 1);
+const horas = dataAtual.getHours();
+const minutos = dataAtual.getMinutes();
+
 //Funcao timer
 function Timer() {
     (async () => {
         try {
             await axios.post('http://localhost:3000/pedfaturado/sincronizar')
+            console.log("Sincronização executada: " + dia + "/" + mes + "/" + ano + " As " + horas + ":" + minutos);
         } catch (error) {
-            console.log("Erro no timer ");
+            console.log("Erro na sincronização: " + dia + "/" + mes + "/" + ano + " As " + horas + ":" + minutos);
         }
-      })();
+      });
   };
 const intervalo = 20 * 1000; // Tempo setado para 5 em 5 MINUTOS
 setInterval(Timer, intervalo);
-*/ 

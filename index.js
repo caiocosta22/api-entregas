@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const route = require('');
-app.use('/', route);
+const router = require('../src/routes/routes.js');
+app.use('/', router);
 
 module.exports = app;
