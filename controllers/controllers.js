@@ -12,7 +12,7 @@ function sincronizar(request, response){
 
 function sincronizar2(request, response){
     models.teste2(request, response).then(result => {
-        return response.status(200).json({message: "Requisição Concluída"});
+        return response.status(201).json({message: "Requisição Concluída"});
     }).catch(error => {
         return response.status(404).json({error});
     })

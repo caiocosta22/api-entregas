@@ -83,7 +83,7 @@ const mes = (dataAtual.getMonth() + 1);
 const horas = dataAtual.getHours();
 const minutos = dataAtual.getMinutes();
 
-//Funcao timer
+/*//Funcao timer
 function Timer() {
     (async () => {
         try {
@@ -95,4 +95,7 @@ function Timer() {
       });
   };
 const intervalo = 20 * 1000; // Tempo setado para 5 em 5 MINUTOS
-setInterval(Timer, intervalo);
+setInterval(Timer, intervalo);*/
+
+
+
