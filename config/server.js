@@ -5,18 +5,6 @@ const debug = require('debug')('gpvendas:server');
 const app = require('../index.js');
 const axios = require('axios');
 const port = normalizePort(process.env.PORT || '8082');
-/*
-MAIN_URL = "http://cloud47.p80.com.br:8080/WSEntregas/webresources/";
-GET_CARGAS_URL = "carga/consultaCargas/";
-POST_INSERT_CARGAS_URL = "carga/insereCargasBatch/";
-POST_INSERT_PEDIDOS_URL = "pedido/inserePedidosBatch/";
-GET_PEDIDOS_ALTERADOS_URL = "pedido/consultaPedidosAlterados/"; //A CONSULTA DE PEDIDOS É FEITA POR UM POST
-POST_UPDATE_PEDIDOS_URL = "pedido/updatePedidoStatusSinc/";
-GET_CARGAS_EM_ABERTO_URL = "carga/consultaCargasPorIdg2/";
-POST_CARGAS_UPDATE_URL = "carga/updateStatusSincronizacaoCarga/";
-POST_PEDIDO_OCORRENCIA_URL = "pedidoOcorrencia/inserePedidoOcorrenciaBatch/";
-GET_PEDIDO_OCORRENCIA_URL = "pedidoOcorrencia/consultaPedidosOcorrencias/";
-*/ // ROTAS DO PROJETO
 
 app.set('port, port');
 
@@ -27,7 +15,6 @@ server.on('error', onError);
 server.on('listening', onListening);
 console.log("Api rodando na porta " + port);
 
-//Funcao para normalizar a porta
 function normalizePort(val) {
     const port = parseInt(val, 10);
         if (isNaN(port)){
@@ -41,8 +28,6 @@ function normalizePort(val) {
     return false
     //O valor fornecido for inválido
 };
-
-//Funcao para exibir erros do servidor
 function onError(error){
     if (error.syscall !== 'listen') {
         throw error;
@@ -66,7 +51,6 @@ function onError(error){
     }
 
 };
-
 function onListening() {
     const addr = server.address();
     const bind = typeof addr === 'string'
@@ -74,7 +58,6 @@ function onListening() {
         : 'port' + addr.port;
         debug('Listening on' + bind);
 };
-
 //Registrando as horas, para o LOG da aplicação
 const dataAtual = new Date();
 const ano = dataAtual.getFullYear();
