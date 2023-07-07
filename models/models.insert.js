@@ -37,10 +37,12 @@ async function inserecargas(){
             ,entidadeid_motorista`
         const resultsql = await sqlpool.request().query(ssql);
         const cargasSql = resultsql.recordset;
+        const idg2 = cargasSql[1].idg2;
         //Conexão com o POSTGRES
         const client = await pgpool.connect();
         //Consulta pedidos no POSTGRES
-        const query = `SELECT * FROM TABLET_CARGAS2 WHERE IDG2 = 2274`
+        const query = {text:`SELECT * FROM TABLET_CARGAS2 WHERE IDG2 = $1`,
+                        values: [idg2]}
         const resultpg = await client.query(query);
         console.log("Conexão com o POSTGRES sucedida")
         const cargaspg = resultpg.rows;
