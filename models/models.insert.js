@@ -38,7 +38,7 @@ async function inserecargas(){
             ,entidadeid_motorista`
         const resultsql = await sqlpool.request().query(ssql);
         const cargasSql = resultsql.recordset;
-        const idg2 = cargasSql[1].idg2;
+        const idg2 = cargasSql[0].idg2;
         
         //Conexão com o POSTGRES
         const client = await pgpool.connect();
@@ -55,8 +55,24 @@ async function inserecargas(){
         await sqlpool.request().query(logsql);
         console.log("Log iniciado!");
         
+        /*//Filtro de cargas utilizando carga e motorista como chave
+        let x = 0
+        const cargalocal = cargasSql[x].cargaid
+        const motoristalocal = cargasSql[x].entidadeid_motorista
+        const carganuvem = cargaspg[x].cargaid
+        const motoristanuvem = cargaspg[x].entidadeid_motorista
+        console.log(cargalocal
+            ,motoristalocal
+            ,carganuvem
+            ,motoristanuvem)
+        //for (x=0; cargalocal===carganuvem && motoristalocal==motoristanuvem; x++){
+
+        //}*/
+        
+        
+        
         //Filtro de cargas
-        const cargasFaltantes = cargasSql.filter(cargasql => !cargaspg.some(cargasql => cargaspg.cargaid === cargasSql.cargaid));
+        const cargasFaltantes = cargasSql.filter(cargasql => !cargaspg.some(cargaspg => cargaspg.cargaid === cargasql.cargaid && cargaspg.entidadeid_motorista === cargasql.entidadeid_motorista));
         console.log("Cargas não sincronizadas: ", cargasFaltantes.map(row => row.cargaid));
         
         //Inserção de cargas no POSTGRES
@@ -180,7 +196,7 @@ async function insereped(){
             console.log("Log iniciado!");
             
             //Filtro de pedidos
-            const pedFaltantes = pedSql.filter(pedsql => !pedpg.some(pedsql => pedpg.conta === pedSql.conta));
+            const pedFaltantes = pedSql.filter(pedsql => !pedpg.some(pedpg => pedpg.conta === pedsql.conta && pedpg.entidadeid_loja === pedsql.entidadeid_loja));
             const contasped = pedFaltantes.map(row => row.conta);
             console.log("Pedidos não sincronizados: ", contasped);
             
