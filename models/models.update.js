@@ -74,22 +74,36 @@ async function updateped(){
         data_entrega = CONVERT(datetime,${data_entrega}),
         data_nao_entregue = CONVERT(datetime,${data_naoentregue}),
         imagem_recibo = convert(varbinary(max),'${canhoto}')
-            WHERE
+        WHERE
         conta =  '${conta}'
         and cargaid = '${cargaid}'
         and romaneioid = '${romaneioid}'
         and entidadeid_loja = '${entidadeid_loja}'`;
 
+        const updatealterado =` 
+        UPDATE TABLET_CARGAS_PEDIDOS2 SET alterado = '2'
+        WHERE
+        conta =  '${conta}'
+        and cargaid = '${cargaid}'
+        and romaneioid = '${romaneioid}'
+        and entidadeid_loja = '${entidadeid_loja}'`;
+        
         for (x=0; x<tamanhoarray; x++){
             //Execução
-            //const updatesql = request.query(update);
             sqlpool.request().query(update).then((result) => {
-                console.log("Update feito com sucesso")
+                console.log("Update no banco LOCAL feito com sucesso");
                 return result
             }).catch((err) => {
                 console.log("Falha no update ", err)
                 throw err
-            })
+            });
+            client.query(updatealterado).then((result) => {
+                console.log("Update no banco NUVEM feito com sucesso");
+                return result
+            }).catch((err) => {
+                console.log("Falha no update ", err)
+                throw err
+            });
         };
     } catch {
         console.log("Erro na atualização de pedidos ", err);
