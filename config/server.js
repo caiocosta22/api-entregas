@@ -4,9 +4,9 @@ const http = require('http');
 const debug = require('debug')('gpvendas:server');
 const app = require('../index.js');
 const axios = require('axios');
-const port = normalizePort(process.env.PORT || '8082');
+const port = normalizePort(process.env.PORT || '3000');
 
-app.set('port, port');
+app.set('port', port);
 
 const server = http.createServer(app);
 
@@ -65,20 +65,18 @@ const dia = dataAtual.getDate();
 const mes = (dataAtual.getMonth() + 1);
 const horas = dataAtual.getHours();
 const minutos = dataAtual.getMinutes();
-
-/*//Funcao timer
-function Timer() {
-    (async () => {
+//Funcao timer
+async function Timer() {
         try {
-            await axios.post('http://localhost:3000/pedfaturado/sincronizar')
-            console.log("Sincronização executada: " + dia + "/" + mes + "/" + ano + " As " + horas + ":" + minutos);
-        } catch (error) {
+            await axios.post('http://localhost:3000/insert/cargas');
+            console.log("Sincronização de INSERT CARGA executada: " + dia + "/" + mes + "/" + ano + " As " + horas + ":" + minutos);
+            await axios.post('http://localhost:3000/insert/cargaspedidos');
+            console.log("Sincronização de INSERT PED executada: " + dia + "/" + mes + "/" + ano + " As " + horas + ":" + minutos);
+            await axios.post('http://localhost:3000/update/pedidos');
+            console.log("Sincronização de UPDATE executada: " + dia + "/" + mes + "/" + ano + " As " + horas + ":" + minutos);
+        } catch {
             console.log("Erro na sincronização: " + dia + "/" + mes + "/" + ano + " As " + horas + ":" + minutos);
-        }
-      });
-  };
-const intervalo = 20 * 1000; // Tempo setado para 5 em 5 MINUTOS
-setInterval(Timer, intervalo);*/
-
-
-
+        };
+    };   
+const intervalo = 15 * 1000
+setInterval(Timer, intervalo); 
