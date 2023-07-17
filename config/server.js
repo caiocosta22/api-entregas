@@ -4,7 +4,7 @@ const http = require('http');
 const debug = require('debug')('gpvendas:server');
 const app = require('../index.js');
 const axios = require('axios');
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '8082');
 
 app.set('port', port);
 
@@ -58,25 +58,24 @@ function onListening() {
         : 'port' + addr.port;
         debug('Listening on' + bind);
 };
-//Registrando as horas, para o LOG da aplicação
-const dataAtual = new Date();
-const ano = dataAtual.getFullYear();
-const dia = dataAtual.getDate();
-const mes = (dataAtual.getMonth() + 1);
-const horas = dataAtual.getHours();
-const minutos = dataAtual.getMinutes();
+
 //Funcao timer
 async function Timer() {
         try {
-            await axios.post('http://localhost:3000/insert/cargas');
-            console.log("Sincronização de INSERT CARGA executada: " + dia + "/" + mes + "/" + ano + " As " + horas + ":" + minutos);
-            await axios.post('http://localhost:3000/insert/cargaspedidos');
-            console.log("Sincronização de INSERT PED executada: " + dia + "/" + mes + "/" + ano + " As " + horas + ":" + minutos);
-            await axios.post('http://localhost:3000/update/pedidos');
-            console.log("Sincronização de UPDATE executada: " + dia + "/" + mes + "/" + ano + " As " + horas + ":" + minutos);
+            await axios.post('http://localhost:8082/insert/cargas');
+            console.log(" *Sincronização de INSERT CARGA executada com sucesso*");
+            console.log("-------------------------------------------------------")
+            await axios.post('http://localhost:8082/insert/cargaspedidos');
+            console.log(" *Sincronização de INSERT PED executada com sucesso*");
+            console.log("-------------------------------------------------------")
+            await axios.post('http://localhost:8082/update/pedidos');
+            console.log(" *Sincronização de UPDATE executada com sucesso*");
+            console.log("-------------------------------------------------------")
         } catch {
-            console.log("Erro na sincronização: " + dia + "/" + mes + "/" + ano + " As " + horas + ":" + minutos);
+            console.log("Erro na sincronização");
         };
     };   
-const intervalo = 15 * 1000
+const intervalo =   30 * 1000
 setInterval(Timer, intervalo); 
+
+
