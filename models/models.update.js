@@ -121,7 +121,7 @@ async function updateped(){
 		console.log(x + " Updates foram executados")
         const ultimologsql = `update INTEGRACAO_API_ENTREGAS set DATASINCRONIZACAO_FIM = getdate(), status = '2' where status = '1' and DATASINCRONIZACAO_FIM is null`;
         await sqlpool.request().query(ultimologsql);
-    } catch {
+    } catch (err){
         console.log("Erro na atualização de pedidos ", err);  
 	    //Finalizando o registro no log
 		const logsql = `INSERT INTO INTEGRACAO_API_ENTREGAS(DATASINCRONIZACAO_INICIO, tipo, descricao, status) values(getdate(), 1, 'UPDATE PEDIDOS FALHOU', '3')`
@@ -130,7 +130,7 @@ async function updateped(){
         await client.end();
         console.log("Conexão com o POSTGRES finalizada")
         await sqlpool.close();
-        console.log("Conexão com o SQL SERVER sucedida");
+        console.log("Conexão com o SQL SERVER finalizada");
     }
 };
 module.exports = {updateped};
