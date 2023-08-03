@@ -3,8 +3,8 @@ const sql = require('mssql');
 const connect = {
     user: 'gpvendas',
     password: 'gpinfo',
-    database: 'GPVENDAS', 
-    server: '192.168.0.250',
+    database: 'API_ENTREGAS', 
+    server: 'G2SERVER',
     pool: {
         max: 1000000,
         min: 0,

@@ -1,10 +1,10 @@
-'use strict'
+﻿'use strict'
 
 const http = require('http');
 const debug = require('debug')('gpvendas:server');
 const app = require('../index.js');
 const axios = require('axios');
-const port = normalizePort(process.env.PORT || '8082');
+const port = normalizePort(process.env.PORT || '3082');
 
 app.set('port', port);
 
@@ -60,22 +60,23 @@ function onListening() {
 };
 
 //Funcao timer
-async function Timer() {
+
+/*async function Timer() {
         try {
-            await axios.post('http://localhost:8082/insert/cargas');
+            await axios.post('http://localhost:3082/insert/cargas');
             console.log(" *Sincronização de INSERT CARGA executada com sucesso*");
             console.log("-------------------------------------------------------")
-            await axios.post('http://localhost:8082/insert/cargaspedidos');
+            await axios.post('http://localhost:3082/insert/cargaspedidos');
             console.log(" *Sincronização de INSERT PED executada com sucesso*");
             console.log("-------------------------------------------------------")
-            await axios.post('http://localhost:8082/update/pedidos');
+            await axios.post('http://localhost:3082/update/pedidos');
             console.log(" *Sincronização de UPDATE executada com sucesso*");
             console.log("-------------------------------------------------------")
         } catch {
             console.log("Erro na sincronização");
         };
     };   
-const intervalo =   30 * 1000
-setInterval(Timer, intervalo); 
+const intervalo = 2 * 60 * 1000
+setInterval(Timer, intervalo);*/
 
 
