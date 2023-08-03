@@ -136,6 +136,30 @@ ALTER                                                                           
 	WHERE
 		 X.DATA >= DATEADD(DAY, -30, GETDATE()) -- NA PRIMEIRA SINCRONIZACAO
 -----------------------------------------------------------------------------------------------------------------------------------------
+// ...
+// Fora do loop, defina o parâmetro 'canhoto' apenas uma vez
+const canhoto = array[x].canhoto;
+request.input('canhoto', sql.VarBinary, canhoto);
+
+// Loop para aplicar os Updates
+for (x = 0; x < tamanhoarray; x++) {
+  // Execução no banco local
+  await request.query(update).then((result) => {
+    // Faça o que precisa ser feito com o resultado, se necessário
+  }).catch((err) => {
+    console.log("Falha no update ", err);
+    throw err;
+  });
+
+  // Execução no banco nuvem
+  await client.query(updatealterado).then((result) => {
+    // Faça o que precisa ser feito com o resultado, se necessário
+  }).catch((err) => {
+    console.log("Falha no update ", err);
+    throw err;
+  });
+}
+// ...
 
 
 
