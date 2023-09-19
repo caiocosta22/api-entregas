@@ -4,8 +4,9 @@ const sqlpool = require('../config/sqlconfig.js');
 
 //Função Cargas
 async function inserecargas(err){
-    //Client de conexão com o postgres
+    //Pools de conexões
     const client = await pgpool.connect();
+    const request = sqlpool.request();
 
     //Começo da sincronização
     try{
@@ -40,19 +41,19 @@ async function inserecargas(err){
             ,nome_motorista
             ,descricao
             ,entidadeid_motorista`
-        const resultsql = await sqlpool.request().query(ssql);
+        const resultsql = await request.query(ssql);
         const cargasSql = resultsql.recordset;
         const linhasSql = resultsql.rowsAffected
         
         if (linhasSql<=0) {
             const ultimologsql = `update INTEGRACAO_API_ENTREGAS set DATASINCRONIZACAO_FIM = getdate(), status = '2' where status = '1' and DATASINCRONIZACAO_FIM is null`;
-            await sqlpool.request().query(ultimologsql);
+            await request.query(ultimologsql);
             return console.log("Nenhuma carga para ser inserida")
         };
         
         //Consulta pedidos no POSTGRES
         const idg2 = cargasSql[0].idg2;
-        const query = {text:`SELECT * FROM TABLET_CARGAS2 WHERE IDG2 = $1`,
+        const query = {text:`SELECT * FROM TABLET_CARGAS WHERE IDG2 = $1`,
                         values: [idg2]};
         const resultpg = await client.query(query);
         const cargaspg = resultpg.rows;
@@ -60,7 +61,7 @@ async function inserecargas(err){
         //Registro Log Cargas
         const logsql = `INSERT INTO INTEGRACAO_API_ENTREGAS(DATASINCRONIZACAO_INICIO, tipo, descricao, status)
         values(getdate(), 1, 'SINCRONIZACAO CARGAS', '1')`
-        await sqlpool.request().query(logsql);
+        await request.query(logsql);
        
         //Filtro de cargas
         const cargasFaltantes = cargasSql.filter(cargasql => !cargaspg.some(cargaspg => cargaspg.cargaid === cargasql.cargaid && cargaspg.entidadeid_motorista === cargasql.entidadeid_motorista));
@@ -82,7 +83,7 @@ async function inserecargas(err){
             ,'${row.descricao}'
             ,'${row.entidadeid_motorista}')`).join(',');
             
-            const inserirdados = `INSERT INTO TABLET_CARGAS2(idg2
+            const inserirdados = `INSERT INTO TABLET_CARGAS(idg2
                 ,cargaid
                 ,data
                 ,status
@@ -103,22 +104,21 @@ async function inserecargas(err){
             //Finalizando o registro no log
             const ultimologsql = `update INTEGRACAO_API_ENTREGAS set DATASINCRONIZACAO_FIM = getdate(), status = '2'
             where status = '1' and DATASINCRONIZACAO_FIM is null`;
-            await sqlpool.request().query(ultimologsql);
-            console.log("Log Finalizado"); 
+            await request.query(ultimologsql);
 
         } else{
                 console.log("Dados já estão atualizados");
                 // Finalizando o registro no Log
                 const ultimologsql = `update INTEGRACAO_API_ENTREGAS set DATASINCRONIZACAO_FIM = getdate(), status = '2' 
                 where status = '1' and DATASINCRONIZACAO_FIM is null`;
-                await sqlpool.request().query(ultimologsql);
+                await request.query(ultimologsql);
                 }
 
     } catch(error){
 		console.error('Erro na sincronização ', error);
         // Inserção na tabela de Log
          const logsql = `INSERT INTO INTEGRACAO_API_ENTREGAS(DATASINCRONIZACAO_INICIO,DATASINCRONIZACAO_FIM, tipo, descricao, status) values(getdate(),getdate(), 1, 'SINCRONIZACAO CARGAS', '3')`;
-         await sqlpool.request().query(logsql);
+         await request.query(logsql);
     } finally {
         //Finalizando conexões com os BD
         await client.end();
@@ -130,8 +130,9 @@ async function inserecargas(err){
 
 //Função Pedidos
 async function insereped(err){
-    //Client de conexão com o postgres
+    //Pools de conexões
     const client = await pgpool.connect();
+    const request = sqlpool.request();
     
     //Começo da sincronização
     try{
@@ -187,21 +188,21 @@ async function insereped(err){
                 ,ocorrenciaid
                 ,romaneioid
                 ,entregue`
-            const resultsql = await sqlpool.request().query(ssql);
+            const resultsql = await request.query(ssql);
             const pedSql = resultsql.recordset;
             const linhasSql = resultsql.rowsAffected;
 
             //Tratativa para se não houver pedidos no select acima
             if (linhasSql == 0) {
                 const ultimologsql = `update INTEGRACAO_API_ENTREGAS set DATASINCRONIZACAO_FIM = getdate(), status = '2' where status = '1' and DATASINCRONIZACAO_FIM is null`;
-                await sqlpool.request().query(ultimologsql);
+                await request.query(ultimologsql);
                 return console.log("Nenhum pedido para ser inserido")
             };
  
             //Inserção na tabela de Log
             const logsql = `INSERT INTO INTEGRACAO_API_ENTREGAS(DATASINCRONIZACAO_INICIO, tipo, descricao, status) 
             values(getdate(), 1,'SINCRONIZACAO PEDIDOS', '1')`
-            await sqlpool.request().query(logsql);
+            await request.query(logsql);
                        
             //Consulta pedidos no BD nuvem
             const idg2 = pedSql[0].idg2;
@@ -209,12 +210,13 @@ async function insereped(err){
             const registroscontas = resultsql.recordset.map(row=>row.conta).join(',')
             const registroscargas = resultsql.recordset.map(row=>row.cargaid).join(',')
             
-            const query = `SELECT * FROM TABLET_CARGAS_PEDIDOS2
+            const query = `SELECT * FROM TABLET_CARGAS_PEDIDOS
             WHERE IDG2 = ${idg2}
 			AND CONTA IN (${registroscontas})
             AND CARGAID IN (${registroscargas})
-            AND ENTIDADEID_LOJA = '${loja}'`
-
+            AND ENTIDADEID_LOJA = ${loja}
+            AND DT_EMISSAO > (SELECT NOW() - INTERVAL '7 DAY')`
+            
             //Resultados da query
             const resultpg = await client.query(query);
             const pedpg = resultpg.rows;
@@ -250,7 +252,7 @@ async function insereped(err){
                 ,'${row.romaneioid}'
                 ,'${row.entregue}')`).join(',');
                 
-                const inserirped = `INSERT INTO TABLET_CARGAS_PEDIDOS2(
+                const inserirped = `INSERT INTO TABLET_CARGAS_PEDIDOS(
                 idg2
                 ,cargaid
                 ,entidadeid_loja
@@ -281,18 +283,18 @@ async function insereped(err){
                 
                 //Finalizando o registro no log
                 const ultimologsql = `update INTEGRACAO_API_ENTREGAS set DATASINCRONIZACAO_FIM = getdate(), status = '2' where status = '1' and DATASINCRONIZACAO_FIM is null`;
-                await sqlpool.request().query(ultimologsql);
+                await request.query(ultimologsql);
             } else {
                 console.log("Dados já estão atualizados")                
                 //Finalizando o registro no log
                 const ultimologsql = `update INTEGRACAO_API_ENTREGAS set DATASINCRONIZACAO_FIM = getdate(), status = '2' where status = '1' and DATASINCRONIZACAO_FIM is null`;
-                await sqlpool.request().query(ultimologsql);
+                await request.query(ultimologsql);
             };
 
     } catch(error){
         console.log("Erro na sincronização ", error);
         const logsql = `INSERT INTO INTEGRACAO_API_ENTREGAS(DATASINCRONIZACAO_INICIO,DATASINCRONIZACAO_FIM, tipo, descricao, status) values(getdate(),getdate(), 1, 'SINCRONIZACAO CARGAS', '3')`
-        await sqlpool.request().query(logsql)
+        await request.query(logsql)
         sqlpool.close();
     } finally {
         //Finalizando as conexões com o banco de dados
